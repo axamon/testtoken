@@ -8,8 +8,8 @@ type Credentials struct {
 
 // credentialsDB maps the json db to struct.
 type credentialsDB struct {
-	userpassDB []struct {
-		passwordDB string `json:"pass"`
-		usernameDB string `json:"user"`
+	UserpassDB []struct {
+		PasswordDB string `json:"pass"`
+		UsernameDB string `json:"user"`
 	} `json:"credentials"`
 }

@@ -74,8 +74,8 @@ func checkCredentials(ctx context.Context, c *Credentials) error {
 			errors <- err
 		}
 
-		for _, r := range db.userpassDB {
-			if r.usernameDB == c.User && r.passwordDB == c.Pass {
+		for _, r := range db.UserpassDB {
+			if r.UsernameDB == c.User && r.PasswordDB == c.Pass {
 				return nil
 			}
 		}
