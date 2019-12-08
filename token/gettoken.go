@@ -77,10 +77,6 @@ func checkCredentials(ctx context.Context, c *Credentials) error {
 				return nil
 			}
 		}
-
-		if err != nil {
-			return nil
-		}
 	}
 
 	runtime.GC()
