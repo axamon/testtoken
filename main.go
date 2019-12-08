@@ -22,6 +22,7 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	defer runtime.GC()
 
 	var c = t.Credentials{User: user, Pass: pass}
 
@@ -31,5 +32,5 @@ func main() {
 	}
 
 	fmt.Println(token)
-	runtime.GC()
+
 }
