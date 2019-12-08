@@ -6,10 +6,10 @@ type Credentials struct {
 	Pass string
 }
 
-// CredentialsDB maps the json db.
-type CredentialsDB struct {
-	Userpass []struct {
-		Pass string `json:"pass"`
-		User string `json:"user"`
+// credentialsDB maps the json db to struct.
+type credentialsDB struct {
+	userpassDB []struct {
+		passwordDB string `json:"pass"`
+		usernameDB string `json:"user"`
 	} `json:"credentials"`
 }

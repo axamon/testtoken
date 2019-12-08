@@ -68,14 +68,14 @@ func checkCredentials(ctx context.Context, c *Credentials) error {
 	default:
 		body, err := ioutil.ReadFile(credentialsdb)
 
-		var db = new(CredentialsDB)
+		var db = new(credentialsDB)
 		err = json.Unmarshal(body, &db)
 		if err != nil {
 			errors <- err
 		}
 
-		for _, i := range db.Userpass {
-			if i.User == c.User && i.Pass == c.Pass {
+		for _, r := range db.userpassDB {
+			if r.usernameDB == c.User && r.passwordDB == c.Pass {
 				return nil
 			}
 		}
