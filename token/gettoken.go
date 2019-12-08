@@ -20,6 +20,7 @@ const credentialsdb = "credentialsdb.json"
 func GetToken(ctx context.Context, c *Credentials) (s string, err error) {
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
+	defer runtime.GC()
 
 	var errors = make(chan error, 1)
 
@@ -43,7 +44,7 @@ func GetToken(ctx context.Context, c *Credentials) (s string, err error) {
 		}
 
 	}
-	runtime.GC()
+
 	return s, err
 }
 
@@ -52,6 +53,7 @@ func checkCredentials(ctx context.Context, c *Credentials) error {
 
 	ctx, cancel := context.WithTimeout(ctx, 500*time.Millisecond)
 	defer cancel()
+	defer runtime.GC()
 
 	var err error
 	var errors = make(chan error, 1)
@@ -79,9 +81,7 @@ func checkCredentials(ctx context.Context, c *Credentials) error {
 		}
 	}
 
-	runtime.GC()
 	return fmt.Errorf("bad credentials")
-
 }
 
 // generateToken generates a token.
@@ -89,6 +89,7 @@ func generateToken(ctx context.Context) (string, error) {
 
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Millisecond)
 	defer cancel()
+	defer runtime.GC()
 
 	select {
 	case <-ctx.Done():
@@ -101,7 +102,6 @@ func generateToken(ctx context.Context) (string, error) {
 		uuid := fmt.Sprintf("%x-%x-%x-%x-%x",
 			b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 
-		runtime.GC()
 		return uuid, err
 	}
 
