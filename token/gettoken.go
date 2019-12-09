@@ -38,7 +38,6 @@ func GetToken(ctx context.Context, c *Credentials) (s string, err error) {
 		return "", err
 
 	case <-ctx.Done():
-
 		return "", fmt.Errorf(gettokeninerror, ctx.Err())
 
 	default:
