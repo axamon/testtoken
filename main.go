@@ -33,10 +33,11 @@ func main() {
 	h := md5.New()
 	h.Write([]byte(pass + "\n"))
 	hashedpass := h.Sum(nil)
+	haspassSTR := fmt.Sprintf("%x", hashedpass)
 
-	fmt.Printf("%x\n", hashedpass)
+	var c = token.Credentials{User: user, Pass: pass, Hashpass: haspassSTR}
 
-	autheticated, err := db.TestSearch(ctx, user, fmt.Sprintf("%x", hashedpass))
+	autheticated, err := db.TestSearch(ctx, &c)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
@@ -44,8 +45,6 @@ func main() {
 	if !autheticated {
 		fmt.Println(autheticated, "NOT AUTHENTICATED")
 	}
-
-	var c = token.Credentials{User: user, Pass: pass}
 
 	token, err := token.GetToken(ctx, &c)
 	if err != nil {

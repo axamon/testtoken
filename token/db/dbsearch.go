@@ -7,13 +7,16 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"golang.org/x/net/context"
+	"testtoken/token"
 )
 
 var userdb, passdb, addr, d string
 
-func TestSearch(ctx context.Context, user, pass string) (bool, error) {
+const querycredentials = "SELECT IF(COUNT(*),'true','false') FROM app.credentials where username = ? and password = ?"
 
-	fmt.Println(user, pass)
+
+func TestSearch(ctx context.Context, c *token.Credentials) (bool, error) {
+
 	// Crea il contesto base.
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -34,7 +37,7 @@ func TestSearch(ctx context.Context, user, pass string) (bool, error) {
 	defer db.Close()
 
 	var isAuthenticated bool
-	err = db.QueryRowContext(ctx, "SELECT IF(COUNT(*),'true','false') FROM app.credentials where username = ? and password = ?", user, pass).Scan(&isAuthenticated)
+	err = db.QueryRowContext(ctx, querycredentials, c.User, c.Hashpass).Scan(&isAuthenticated)
 	if err != nil {
 		log.Fatal(err)
 	}

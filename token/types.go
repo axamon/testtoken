@@ -6,8 +6,9 @@ package token
 
 // Credentials is the type used to pass username and password around.
 type Credentials struct {
-	User string
-	Pass string
+	User     string
+	Pass     string
+	Hashpass string
 }
 
 // credentialsDB maps the json db to struct.
