@@ -15,7 +15,7 @@ import (
 )
 
 const gettokeninerror = "GetToken function in error: %v"
-const genertateTokenInError = "function gerateToken in error: %v"
+const genertateTokenInError = "function generateToken in error: %v"
 const checkcredentialsinerror = "function checkCredentials in error: %v"
 
 const credentialsdb = "credentialsdb.json"
@@ -28,26 +28,27 @@ func GetToken(ctx context.Context, c *Credentials) (s string, err error) {
 
 	var errors = make(chan error, 1)
 
-	err = checkCredentials(ctx, c)
-	if err != nil {
-		errors <- err
-	}
-
 	select {
 	case err = <-errors:
 		return "", err
 
 	case <-ctx.Done():
-		return "", fmt.Errorf(gettokeninerror, ctx.Err())
+		return "", fmt.Errorf("Timeout: %v", ctx.Err())
 
 	default:
-		s, err = generateToken(ctx)
+
+		err = checkCredentials(ctx, c)
 		if err != nil {
-			errors <- err
+			return "", err
 		}
 
-	}
+		// time.Sleep(6 * time.Second)
 
+		s, err = generateToken(ctx)
+		if err != nil {
+			return "", err
+		}
+	}
 	return s, err
 }
 
@@ -58,13 +59,7 @@ func checkCredentials(ctx context.Context, c *Credentials) error {
 	defer cancel()
 	defer runtime.GC()
 
-	var err error
-	var errors = make(chan error, 1)
-
 	select {
-	case err = <-errors:
-		return err
-
 	case <-ctx.Done():
 		return fmt.Errorf(checkcredentialsinerror, ctx.Err())
 
@@ -74,11 +69,11 @@ func checkCredentials(ctx context.Context, c *Credentials) error {
 		var db = new(credentialsDB)
 		err = json.Unmarshal(body, &db)
 		if err != nil {
-			errors <- err
+			return err
 		}
 
 		for _, r := range db.UserpassDB {
-			if r.UsernameDB == c.User && r.PasswordDB == c.Pass {
+			if r.UsernameDB == c.User && r.PasswordDB == c.Hashpass {
 				return nil
 			}
 		}

@@ -39,7 +39,7 @@ func main() {
 
 	autheticated, err := db.TestSearch(ctx, &c)
 	if err != nil {
-		log.Fatalf("Error: %v", err)
+		log.Printf("Error: %v", err)
 	}
 
 	if !autheticated {
