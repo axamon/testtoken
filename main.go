@@ -9,7 +9,6 @@ import (
 	"crypto/md5"
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"runtime"
 	"testtoken/token"
@@ -32,8 +31,10 @@ func main() {
 	defer runtime.GC()
 
 	h := md5.New()
-	io.WriteString(h, pass)
+	h.Write([]byte(pass + "\n"))
 	hashedpass := h.Sum(nil)
+
+	fmt.Printf("%x\n", hashedpass)
 
 	autheticated, err := db.TestSearch(ctx, user, fmt.Sprintf("%x", hashedpass))
 	if err != nil {
