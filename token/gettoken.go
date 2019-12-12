@@ -104,3 +104,33 @@ func generateToken(ctx context.Context) (string, error) {
 	}
 
 }
+
+// CheckLocalCredentials verifies username and passwords on local json file.
+func CheckLocalCredentials(ctx context.Context, c *Credentials) (bool, error) {
+
+	ctx, cancel := context.WithTimeout(ctx, 500*time.Millisecond)
+	defer cancel()
+	defer runtime.GC()
+
+	select {
+	case <-ctx.Done():
+		return false, fmt.Errorf(checkcredentialsinerror, ctx.Err())
+
+	default:
+		body, err := ioutil.ReadFile(credentialsdb)
+
+		var db = new(credentialsDB)
+		err = json.Unmarshal(body, &db)
+		if err != nil {
+			return false, err
+		}
+
+		for _, r := range db.UserpassDB {
+			if r.UsernameDB == c.User && r.PasswordDB == c.Hashpass {
+				return true, nil
+			}
+		}
+	}
+
+	return false, nil
+}

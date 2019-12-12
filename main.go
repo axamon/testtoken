@@ -10,7 +10,9 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"runtime"
+	"sync"
 	"testtoken/token"
 	"testtoken/token/db"
 )
@@ -30,27 +32,73 @@ func main() {
 	defer cancel()
 	defer runtime.GC()
 
+	var c = token.Credentials{User: user, Hashpass: hashpassword(pass)}
+
+	var authenticated = make(chan bool, 2)
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer runtime.Gosched()
+		defer wg.Done()
+		isAuthenticated, err := db.TestSearch(ctx, &c)
+		if err != nil {
+			log.Printf("Error: %v", err)
+		}
+		defer fmt.Println("Finito controllo su DB", isAuthenticated)
+		authenticated <- isAuthenticated
+		return
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer runtime.Gosched()
+		defer wg.Done()
+		isAuthenticated, err := token.CheckLocalCredentials(ctx, &c)
+		defer fmt.Println("Finito controllo su File", isAuthenticated)
+		if err != nil {
+			log.Printf("Error: %v", err)
+		}
+		authenticated <- isAuthenticated
+		return
+	}()
+
+	// waits until something is put in channel
+	// if the first result is true it is enough to authenticate-
+	// it avoids waiting for both routines in case one has already authenticated.
+	select {
+	case r := <-authenticated:
+		if r == true {
+			fmt.Println("autenticato")
+			os.Exit(0)
+		}
+		if r == false {
+			break
+		}
+	}
+
+	// waits until both go routines have finished working.
+	wg.Wait()
+
+	// another select to check if any go routine has managed to authenticate.
+	select {
+	case r := <-authenticated:
+		if r == true {
+			fmt.Println("autenticato")
+			os.Exit(0)
+		}
+		if r == false {
+			break
+		}
+	}
+	os.Exit(1)
+}
+
+func hashpassword(s string) string {
 	h := md5.New()
-	h.Write([]byte(pass + "\n"))
+	h.Write([]byte(s + "\n"))
 	hashedpass := h.Sum(nil)
-	haspassSTR := fmt.Sprintf("%x", hashedpass)
 
-	var c = token.Credentials{User: user, Pass: pass, Hashpass: haspassSTR}
-
-	autheticated, err := db.TestSearch(ctx, &c)
-	if err != nil {
-		log.Printf("Error: %v", err)
-	}
-
-	if !autheticated {
-		fmt.Println(autheticated, "NOT AUTHENTICATED")
-	}
-
-	token, err := token.GetToken(ctx, &c)
-	if err != nil {
-		log.Fatalf("Error: %v", err)
-	}
-
-	fmt.Println(token)
-
+	return fmt.Sprintf("%x", hashedpass)
 }
