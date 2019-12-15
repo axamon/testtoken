@@ -10,8 +10,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"testtoken/token"
 	"time"
+	"testtoken/token"
 )
 
 // user and pass variables.

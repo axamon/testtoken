@@ -11,9 +11,8 @@ import (
 	"log"
 	"runtime"
 	"sync"
-	"testtoken/token"
-	"testtoken/token/db"
 	"time"
+	"testtoken/token"
 )
 
 // accesso is an interface to manage credentials.
@@ -65,7 +64,7 @@ func (c credentials) autenticato() bool {
 	go func() {
 		defer runtime.Gosched()
 		defer wg.Done()
-		isAuthenticated, err := db.TestSearch(ctx, &cc)
+		isAuthenticated, err := token.TestSearch(ctx, &cc)
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
