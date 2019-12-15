@@ -34,7 +34,7 @@ func main() {
 
 	var c = token.Credentials{User: user, Hashpass: hashpassword(pass)}
 
-	var authenticated = make(chan bool, 2)
+	var globallyAuthenticated bool = false
 
 	var wg sync.WaitGroup
 
@@ -47,7 +47,9 @@ func main() {
 			log.Printf("Error: %v", err)
 		}
 		defer fmt.Println("Finito controllo su DB", isAuthenticated)
-		authenticated <- isAuthenticated
+		if isAuthenticated {
+			globallyAuthenticated = true
+		}
 		return
 	}()
 
@@ -60,39 +62,24 @@ func main() {
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
-		authenticated <- isAuthenticated
+		if isAuthenticated {
+			globallyAuthenticated = true
+		}
 		return
 	}()
-
-	// waits until something is put in channel
-	// if the first result is true it is enough to authenticate-
-	// it avoids waiting for both routines in case one has already authenticated.
-	select {
-	case r := <-authenticated:
-		if r == true {
-			fmt.Println("autenticato")
-			os.Exit(0)
-		}
-		if r == false {
-			break
-		}
-	}
 
 	// waits until both go routines have finished working.
 	wg.Wait()
 
-	// another select to check if any go routine has managed to authenticate.
-	select {
-	case r := <-authenticated:
-		if r == true {
-			fmt.Println("autenticato")
-			os.Exit(0)
-		}
-		if r == false {
-			break
-		}
+	switch globallyAuthenticated {
+	case true:
+		log.Printf("%s autenticato\n", user)
+		os.Exit(0)
+
+	default:
+		log.Fatalf("%s non autenticato\n", user)
+		// os.Exit(1) is added automatically by log.Fatalf
 	}
-	os.Exit(1)
 }
 
 func hashpassword(s string) string {
