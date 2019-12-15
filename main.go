@@ -7,6 +7,7 @@ package main
 import (
 	"context"
 	"crypto/md5"
+	"crypto/rand"
 	"flag"
 	"fmt"
 	"log"
@@ -15,6 +16,7 @@ import (
 	"sync"
 	"testtoken/token"
 	"testtoken/token/db"
+	"time"
 )
 
 var user, pass string
@@ -38,6 +40,15 @@ func main() {
 
 	var wg sync.WaitGroup
 
+	type ctxINTERFACE string
+	var k ctxINTERFACE
+
+	uddi, err := getUUDI(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx = context.WithValue(ctx, k, uddi)
+
 	wg.Add(1)
 	go func() {
 		defer runtime.Gosched()
@@ -46,7 +57,7 @@ func main() {
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
-		defer fmt.Println("Finito controllo su DB", isAuthenticated)
+		defer log.Println("Finito controllo su DB", isAuthenticated, ctx.Value(k))
 		if isAuthenticated {
 			globallyAuthenticated = true
 		}
@@ -58,7 +69,7 @@ func main() {
 		defer runtime.Gosched()
 		defer wg.Done()
 		isAuthenticated, err := token.CheckLocalCredentials(ctx, &c)
-		defer fmt.Println("Finito controllo su File", isAuthenticated)
+		defer log.Println("Finito controllo su File", isAuthenticated, ctx.Value(k))
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
@@ -74,6 +85,11 @@ func main() {
 	switch globallyAuthenticated {
 	case true:
 		log.Printf("%s autenticato\n", user)
+		token, err := token.GenerateToken(ctx)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(token)
 		os.Exit(0)
 
 	default:
@@ -88,4 +104,27 @@ func hashpassword(s string) string {
 	hashedpass := h.Sum(nil)
 
 	return fmt.Sprintf("%x", hashedpass)
+}
+
+// getUUDI generates a string to use as context-value.
+func getUUDI(ctx context.Context) (string, error) {
+
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Millisecond)
+	defer cancel()
+	defer runtime.GC()
+
+	select {
+	case <-ctx.Done():
+		return "", fmt.Errorf("impossible to generate UDDI: %v", ctx.Err())
+
+	default:
+		b := make([]byte, 16)
+		_, err := rand.Read(b)
+
+		uuid := fmt.Sprintf("%x-%x-%x-%x-%x",
+			b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+
+		return uuid, err
+	}
+
 }

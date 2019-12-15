@@ -44,7 +44,7 @@ func GetToken(ctx context.Context, c *Credentials) (s string, err error) {
 
 		// time.Sleep(6 * time.Second)
 
-		s, err = generateToken(ctx)
+		s, err = GenerateToken(ctx)
 		if err != nil {
 			return "", err
 		}
@@ -82,8 +82,8 @@ func checkCredentials(ctx context.Context, c *Credentials) error {
 	return fmt.Errorf("bad credentials")
 }
 
-// generateToken generates a token.
-func generateToken(ctx context.Context) (string, error) {
+// GenerateToken generates a token.
+func GenerateToken(ctx context.Context) (string, error) {
 
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Millisecond)
 	defer cancel()
