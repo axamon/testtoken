@@ -12,6 +12,27 @@ import (
 	"time"
 )
 
+// accesso is an interface to manage credentials.
+type accesso interface {
+	// autenticato method returns true whether credentials
+	// are found in any storage (json file or sql db).
+	autenticato() bool
+
+	// token method returns a psuedo token if credentials are good.
+	token() string
+}
+
+// verifica function verifies that credentials are found.
+func verifica(a accesso) {
+	fmt.Println(a.autenticato())
+}
+
+// getToken function returns a pseudo token.
+func getToken(a accesso) string {
+	return a.token()
+}
+
+// autenticato returns true if credentials are found in any storage.
 func (c credentials) autenticato() bool {
 
 	var cc token.Credentials
