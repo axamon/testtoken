@@ -11,7 +11,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 	"runtime"
 	"sync"
 	"testtoken/token"
@@ -28,17 +27,45 @@ func init() {
 	flag.Parse()
 }
 
+type accesso interface {
+	autenticato() bool
+	token() string
+}
+
+type credentials token.Credentials
+
+func verifica(a accesso) {
+	fmt.Println(a.autenticato())
+}
+
+func getToken(a accesso) {
+	fmt.Println(a.token())
+}
+
 func main() {
+
+	// var c = token.Credentials{User: user, Hashpass: hashpassword(pass)}
+
+	poldo := credentials{User: "Poldo", Hashpass: hashpassword("panino")}
+	var dinamico = credentials{User: user, Hashpass: hashpassword(pass)}
+
+	verifica(poldo)
+	verifica(dinamico)
+
+	getToken(poldo)
+	getToken(dinamico)
+
+}
+
+func (c credentials) autenticato() bool {
+
+	var cc token.Credentials
+	cc.User = c.User
+	cc.Hashpass = c.Hashpass
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	defer runtime.GC()
-
-	var c = token.Credentials{User: user, Hashpass: hashpassword(pass)}
-
-	var globallyAuthenticated bool = false
-
-	var wg sync.WaitGroup
 
 	type ctxINTERFACE string
 	var k ctxINTERFACE
@@ -49,11 +76,16 @@ func main() {
 	}
 	ctx = context.WithValue(ctx, k, uddi)
 
+	var wg sync.WaitGroup
+
+	var globallyAuthenticated bool = false
+
 	wg.Add(1)
+
 	go func() {
 		defer runtime.Gosched()
 		defer wg.Done()
-		isAuthenticated, err := db.TestSearch(ctx, &c)
+		isAuthenticated, err := db.TestSearch(ctx, &cc)
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
@@ -68,8 +100,8 @@ func main() {
 	go func() {
 		defer runtime.Gosched()
 		defer wg.Done()
-		isAuthenticated, err := token.CheckLocalCredentials(ctx, &c)
-		defer log.Println("Finito controllo su File", isAuthenticated, ctx.Value(k))
+		isAuthenticated, err := token.CheckLocalCredentials(ctx, &cc)
+		defer log.Printf("Finito controllo su File %v, id: %s\n", isAuthenticated, ctx.Value(k))
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
@@ -82,20 +114,34 @@ func main() {
 	// waits until both go routines have finished working.
 	wg.Wait()
 
-	switch globallyAuthenticated {
-	case true:
-		log.Printf("%s autenticato\n", user)
-		token, err := token.GenerateToken(ctx)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(token)
-		os.Exit(0)
+	// switch globallyAuthenticated {
+	// case true:
+	// 	log.Printf("%s autenticato\n", user)
+	// 	token, err := token.GenerateToken(ctx)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	fmt.Println(token)
+	// 	os.Exit(0)
 
-	default:
-		log.Fatalf("%s non autenticato\n", user)
-		// os.Exit(1) is added automatically by log.Fatalf
+	// default:
+	// 	log.Fatalf("%s non autenticato\n", user)
+	// 	// os.Exit(1) is added automatically by log.Fatalf
+
+	// }
+	return globallyAuthenticated
+}
+
+func (c credentials) token() string {
+
+	if c.autenticato() {
+		token, err := token.GenerateToken(context.TODO())
+		if err != nil {
+			log.Println(err)
+		}
+		return token
 	}
+	return ""
 }
 
 func hashpassword(s string) string {
