@@ -1,0 +1,6 @@
+# github.com/go-sql-driver/mysql v1.4.1
+github.com/go-sql-driver/mysql
+# golang.org/x/net v0.0.0-20191207000613-e7e4b65ae663
+golang.org/x/net/context
+# google.golang.org/appengine v1.6.5
+google.golang.org/appengine/cloudsql
