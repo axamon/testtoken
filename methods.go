@@ -22,7 +22,7 @@ type accesso interface {
 	// are found in any storage (json file or sql db).
 	autenticato(context.Context) bool
 
-	// token method returns a psuedo token if credentials are good.
+	// token method returns a pseudo token if credentials are good.
 	token(context.Context) string
 }
 
