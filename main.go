@@ -8,8 +8,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/axamon/hashstring"
 	"log"
-	"testtoken/token"
+	"github.com/axamon/token"
 	"time"
 )
 
@@ -42,7 +43,7 @@ func main() {
 
 	// Creates the credential variable to test.
 	var dinamico = credentials{User: user, Hashpass: hashstring.Md5Sum(pass)}
-	result <- getToken(dinamico)
+	result <- token.getToken(dinamico)
 
 	select {
 	// If checks take too long it quits.
