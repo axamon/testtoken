@@ -6,12 +6,16 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"flag"
 	"fmt"
-	"github.com/axamon/hashstring"
 	"log"
-	"github.com/axamon/token"
+	"runtime"
+	"sync"
 	"time"
+
+	"github.com/axamon/hashstring"
+	"github.com/axamon/token"
 )
 
 // user and pass variables.
@@ -43,7 +47,7 @@ func main() {
 
 	// Creates the credential variable to test.
 	var dinamico = credentials{User: user, Hashpass: hashstring.Md5Sum(pass)}
-	result <- token.getToken(dinamico)
+	result <- getToken(dinamico)
 
 	select {
 	// If checks take too long it quits.
@@ -55,7 +59,6 @@ func main() {
 	}
 
 }
-
 
 // accesso is an interface to manage credentials.
 type accesso interface {
@@ -106,7 +109,7 @@ func (c credentials) autenticato() bool {
 	go func() {
 		defer runtime.Gosched()
 		defer wg.Done()
-		isAuthenticated, err := token.TestSearch(ctx, &cc)
+		isAuthenticated, err := token.TestSearch(ctx, cc)
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
