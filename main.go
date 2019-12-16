@@ -21,6 +21,7 @@ import (
 // user and pass variables.
 var user, pass string
 
+// t is the timeout to use.
 var t int
 
 func init() {
@@ -38,7 +39,8 @@ type credentials token.Credentials
 
 func main() {
 	// Set the main context with t milliseconds timeout.
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(t)*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(t)*time.Millisecond)
 	// At the end of function cleans up.
 	defer cancel()
 
@@ -47,7 +49,9 @@ func main() {
 
 	// Creates the credential variable to test.
 	var dinamico = credentials{User: user, Hashpass: hashstring.Md5Sum(pass)}
-	result <- getToken(dinamico)
+
+	// gets a token for the credentials if present.
+	result <- getToken(ctx, dinamico)
 
 	select {
 	// If checks take too long it quits.
@@ -67,7 +71,7 @@ type accesso interface {
 	autenticato() bool
 
 	// token method returns a psuedo token if credentials are good.
-	token() string
+	token(context.Context) string
 }
 
 // verifica function verifies that credentials are found.
@@ -76,8 +80,8 @@ func verifica(a accesso) {
 }
 
 // getToken function returns a pseudo token.
-func getToken(a accesso) string {
-	return a.token()
+func getToken(ctx context.Context, a accesso) string {
+	return a.token(ctx)
 }
 
 // autenticato returns true if credentials are found in any storage.
@@ -100,26 +104,28 @@ func (c credentials) autenticato() bool {
 	}
 	ctx = context.WithValue(ctx, k, uddi)
 
+	// Istanzia un wait group per gestire i processi paralleli.
 	var wg sync.WaitGroup
 
 	var globallyAuthenticated bool = false
 
+	// Aggiunge un processo parallelo.
 	wg.Add(1)
-
 	go func() {
 		defer runtime.Gosched()
 		defer wg.Done()
-		isAuthenticated, err := token.TestSearch(ctx, cc)
+		isAuthenticated, err := token.TestSearch(ctx, &cc)
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
-		defer log.Println("Finito controllo su DB", isAuthenticated, ctx.Value(k))
+		defer log.Printf("Finito controllo su DB %v, id: %s\n", isAuthenticated, ctx.Value(k))
 		if isAuthenticated {
 			globallyAuthenticated = true
 		}
 		return
 	}()
 
+	// Aggiunge un processo parallelo.
 	wg.Add(1)
 	go func() {
 		defer runtime.Gosched()
@@ -135,16 +141,16 @@ func (c credentials) autenticato() bool {
 		return
 	}()
 
-	// waits until both go routines have finished working.
+	// Aspetta che tutti i processi paralleli terminino.
 	wg.Wait()
 
 	return globallyAuthenticated
 }
 
-func (c credentials) token() string {
+func (c credentials) token(ctx context.Context) string {
 
 	if c.autenticato() {
-		token, err := token.GenerateToken(context.TODO())
+		token, err := token.GenerateToken(ctx)
 		if err != nil {
 			log.Println(err)
 		}
