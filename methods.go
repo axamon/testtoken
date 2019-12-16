@@ -26,7 +26,7 @@ type accesso interface {
 	token(context.Context) string
 }
 
-// // verifica function verifies that credentials are found.
+// verifica function verifies that credentials are found.
 // func verifica(a accesso) {
 // 	fmt.Println(a.autenticato())
 // }
@@ -39,22 +39,13 @@ func getToken(ctx context.Context, a accesso) string {
 // autenticato returns true if credentials are found in any storage.
 func (c credentials) autenticato(ctx context.Context) bool {
 
-	ctx, cancel := context.WithCancel(ctx)
+	ctx, cancel := context.WithTimeout(ctx, 15*time.Millisecond)
 	defer cancel()
 	defer runtime.GC()
 
 	var cc token.Credentials
 	cc.User = c.User
 	cc.Hashpass = c.Hashpass
-
-	type ctxINTERFACE string
-	var k ctxINTERFACE
-
-	uddi, err := getUUDI(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	ctx = context.WithValue(ctx, k, uddi)
 
 	// Istanzia un wait group per gestire i processi paralleli.
 	var wg sync.WaitGroup
@@ -98,7 +89,7 @@ func (c credentials) autenticato(ctx context.Context) bool {
 
 	select {
 	case <-ctx.Done():
-		log.Println(ctx.Err())
+		log.Printf("Error in autentiato function: %v\n", ctx.Err())
 		return false
 	default:
 		return globallyAuthenticated

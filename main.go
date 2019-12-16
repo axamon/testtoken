@@ -35,12 +35,22 @@ func init() {
 // type created in the token package.
 type credentials token.Credentials
 
+type ctxINTERFACE string
+
+var k ctxINTERFACE
+
 func main() {
 	// Set the main context with t milliseconds timeout.
 	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(t)*time.Millisecond)
 	// At the end of function cleans up.
 	defer cancel()
+
+	uddi, err := getUUDI(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx = context.WithValue(ctx, k, uddi)
 
 	// Creates the channel where the token will be passed.
 	var result = make(chan string, 1)
@@ -52,10 +62,9 @@ func main() {
 	result <- getToken(ctx, dinamic)
 
 	select {
-	// If checks take too long it quits.
+	// If checks took too long it quits.
 	case <-ctx.Done():
-		log.Fatal(ctx.Err())
-		// implicitly does os.Exit(1)
+		log.Fatalf("Error main func timeout: %v\n", ctx.Err()) // implicitly does os.Exit(1)
 	case t := <-result:
 		// closes the channel.
 		close(result)
