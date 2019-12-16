@@ -61,7 +61,7 @@ func (c credentials) autenticato(ctx context.Context) bool {
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
-		defer log.Printf("Finito controllo su DB %v, id: %s\n", isAuthenticated, ctx.Value(k))
+		defer log.Printf("Finito controllo su DB:\t%v,\tid:\t%s\n", isAuthenticated, ctx.Value(k))
 		if isAuthenticated {
 			globallyAuthenticated = true
 		}
@@ -74,10 +74,10 @@ func (c credentials) autenticato(ctx context.Context) bool {
 		defer runtime.Gosched()
 		defer wg.Done()
 		isAuthenticated, err := token.CheckLocalCredentials(ctx, &cc)
-		defer log.Printf("Finito controllo su File %v, id: %s\n", isAuthenticated, ctx.Value(k))
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
+		defer log.Printf("Finito controllo su File:\t%v,\tid:\t%s\n", isAuthenticated, ctx.Value(k))
 		if isAuthenticated {
 			globallyAuthenticated = true
 		}
