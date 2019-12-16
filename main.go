@@ -9,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/axamon/hashstring"
@@ -21,12 +22,12 @@ var user, pass string
 // t is the timeout to use.
 var t int
 
+// parse cli arguments into the variables.
 func init() {
 	flag.StringVar(&user, "u", "", "Username")
 	flag.StringVar(&pass, "p", "", "Password")
 	flag.IntVar(&t, "t", 30, "Timeout in millisecons")
 
-	// parse cli arguments into the variables.
 	flag.Parse()
 }
 
@@ -56,8 +57,11 @@ func main() {
 		log.Fatal(ctx.Err())
 		// implicitly does os.Exit(1)
 	case t := <-result:
+		// closes the channel.
+		close(result)
 		// Prints the pseudo token.
 		fmt.Println(t)
+		os.Exit(0)
 	}
 
 }

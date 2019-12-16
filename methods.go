@@ -20,16 +20,16 @@ import (
 type accesso interface {
 	// autenticato method returns true whether credentials
 	// are found in any storage (json file or sql db).
-	autenticato() bool
+	autenticato(context.Context) bool
 
 	// token method returns a psuedo token if credentials are good.
 	token(context.Context) string
 }
 
-// verifica function verifies that credentials are found.
-func verifica(a accesso) {
-	fmt.Println(a.autenticato())
-}
+// // verifica function verifies that credentials are found.
+// func verifica(a accesso) {
+// 	fmt.Println(a.autenticato())
+// }
 
 // getToken function returns a pseudo token.
 func getToken(ctx context.Context, a accesso) string {
@@ -37,15 +37,15 @@ func getToken(ctx context.Context, a accesso) string {
 }
 
 // autenticato returns true if credentials are found in any storage.
-func (c credentials) autenticato() bool {
+func (c credentials) autenticato(ctx context.Context) bool {
+
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	defer runtime.GC()
 
 	var cc token.Credentials
 	cc.User = c.User
 	cc.Hashpass = c.Hashpass
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	defer runtime.GC()
 
 	type ctxINTERFACE string
 	var k ctxINTERFACE
@@ -96,12 +96,18 @@ func (c credentials) autenticato() bool {
 	// Aspetta che tutti i processi paralleli terminino.
 	wg.Wait()
 
-	return globallyAuthenticated
+	select {
+	case <-ctx.Done():
+		log.Println(ctx.Err())
+		return false
+	default:
+		return globallyAuthenticated
+	}
 }
 
 func (c credentials) token(ctx context.Context) string {
 
-	if c.autenticato() {
+	if c.autenticato(ctx) {
 		token, err := token.GenerateToken(ctx)
 		if err != nil {
 			log.Println(err)
