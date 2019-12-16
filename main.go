@@ -9,8 +9,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"time"
 	"testtoken/token"
+	"time"
 )
 
 // user and pass variables.
@@ -41,7 +41,7 @@ func main() {
 	var result = make(chan string, 1)
 
 	// Creates the credential variable to test.
-	var dinamico = credentials{User: user, Hashpass: hashpassword(pass)}
+	var dinamico = credentials{User: user, Hashpass: hashstring.Md5Sum(pass)}
 	result <- getToken(dinamico)
 
 	select {
