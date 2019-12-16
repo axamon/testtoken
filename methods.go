@@ -12,7 +12,7 @@ import (
 	"runtime"
 	"sync"
 	"time"
-	"testtoken/token"
+	"github.com/axamon/token"
 )
 
 // accesso is an interface to manage credentials.
