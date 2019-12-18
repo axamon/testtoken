@@ -55,7 +55,7 @@ func (c credentials) autenticato(ctx context.Context) bool {
 	go func() {
 		defer runtime.Gosched()
 		defer wg.Done()
-		isAuthenticated, err := token.TestSearch(ctx, &cc)
+		isAuthenticated, err := token.CheckCredentialsDBCtx(ctx, &cc)
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
@@ -97,7 +97,7 @@ func (c credentials) autenticato(ctx context.Context) bool {
 func (c credentials) token(ctx context.Context) string {
 
 	if c.autenticato(ctx) {
-		token, err := token.GenerateToken(ctx)
+		token, err := token.GenerateCtx(ctx)
 		if err != nil {
 			log.Println(err)
 		}
