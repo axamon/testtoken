@@ -14,6 +14,7 @@ import (
 
 	"github.com/axamon/hashstring"
 	"github.com/axamon/token"
+	"github.com/axamon/uddi"
 )
 
 // user and pass variables.
@@ -46,11 +47,12 @@ func main() {
 	// At the end of function cleans up.
 	defer cancel()
 
-	uddi, err := getUUDI(ctx)
+	udditoken, err := uddi.CreateCtx(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
-	ctx = context.WithValue(ctx, k, uddi)
+
+	ctx = context.WithValue(ctx, k, udditoken)
 
 	// Creates the channel where the token will be passed.
 	var result = make(chan string, 1)
@@ -59,7 +61,7 @@ func main() {
 	var dinamic = credentials{User: user, Hashpass: hashstring.Md5Sum(pass)}
 
 	// gets a pseudo UDDI token if the credentials are present in any storage.
-	result <- getToken(ctx, dinamic)
+	result <- dinamic.token(ctx)
 
 	select {
 	// If checks took too long it quits.
