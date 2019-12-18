@@ -59,7 +59,10 @@ func (c credentials) autenticato(ctx context.Context) bool {
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
-		defer log.Printf("Finito controllo su DB:\t%v,\tid:\t%s\n", isAuthenticated, ctx.Value(k))
+		defer log.Printf("Finito controllo su DB:\t%v,\tid:\t%s\n",
+			isAuthenticated,
+			ctx.Value(k))
+
 		if isAuthenticated {
 			globallyAuthenticated = true
 		}
@@ -75,7 +78,11 @@ func (c credentials) autenticato(ctx context.Context) bool {
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
-		defer log.Printf("Finito controllo su File:\t%v,\tid:\t%s\n", isAuthenticated, ctx.Value(k))
+
+		defer log.Printf("Finito controllo su File:\t%v,\tid:\t%s\n",
+			isAuthenticated,
+			ctx.Value(k))
+
 		if isAuthenticated {
 			globallyAuthenticated = true
 		}
@@ -87,7 +94,9 @@ func (c credentials) autenticato(ctx context.Context) bool {
 
 	select {
 	case <-ctx.Done():
-		log.Printf("Error in autentiato function: %v\n", ctx.Err())
+		log.Printf("Error in autenticato %v function: %v\n",
+			ctx.Value(k),
+			ctx.Err())
 		return false
 	default:
 		return globallyAuthenticated

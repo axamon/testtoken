@@ -66,7 +66,7 @@ func main() {
 	select {
 	// If checks took too long it quits.
 	case <-ctx.Done():
-		log.Fatalf("Error main func timeout: %v\n", ctx.Err()) // implicitly does os.Exit(1)
+		log.Fatalf("Error main func %v timeout: %v\n", ctx.Value(k), ctx.Err()) // implicitly does os.Exit(1)
 	case t := <-result:
 		// closes the channel.
 		close(result)
