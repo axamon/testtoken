@@ -27,7 +27,7 @@ var t int
 func init() {
 	flag.StringVar(&user, "u", "", "Username")
 	flag.StringVar(&pass, "p", "", "Password")
-	flag.IntVar(&t, "t", 30, "Timeout in millisecons")
+	flag.IntVar(&t, "t", 500, "Timeout in millisecons")
 
 	flag.Parse()
 }
