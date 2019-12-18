@@ -38,8 +38,8 @@ func init() {
 // and password are found in a record.
 const QueryCredentials = "SELECT IF(COUNT(*),'true','false') FROM app.credentials WHERE username = ? AND password = ?"
 
-// TestSearch looks for credentials in the DB.
-func TestSearch(ctx context.Context, c *Credentials) (bool, error) {
+// CheckCredentialsDBCtx looks for credentials in the DB.
+func CheckCredentialsDBCtx(ctx context.Context, c *Credentials) (bool, error) {
 
 	// Crea il contesto base.
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
@@ -54,7 +54,8 @@ func TestSearch(ctx context.Context, c *Credentials) (bool, error) {
 	}
 
 	var isAuthenticated bool
-	err = db.QueryRowContext(ctx, QueryCredentials, c.User, c.Hashpass).Scan(&isAuthenticated)
+	err = db.QueryRowContext(ctx,
+		QueryCredentials, c.User, c.Hashpass).Scan(&isAuthenticated)
 	if err != nil {
 		return false, fmt.Errorf("db access not possible: %v", err)
 	}

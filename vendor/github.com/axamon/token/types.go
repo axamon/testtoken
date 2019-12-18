@@ -17,3 +17,6 @@ type credentialsDB struct {
 		UsernameDB string `json:"user"`
 	} `json:"credentials"`
 }
+
+// cryptoSource allows to test token generation.
+type cryptoSource struct{}

@@ -6,8 +6,6 @@ package main
 
 import (
 	"context"
-	"crypto/rand"
-	"fmt"
 	"log"
 	"runtime"
 	"sync"
@@ -106,27 +104,4 @@ func (c credentials) token(ctx context.Context) string {
 		return token
 	}
 	return ""
-}
-
-// getUUDI generates a string to use as context-value.
-func getUUDI(ctx context.Context) (string, error) {
-
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Microsecond)
-	defer cancel()
-	defer runtime.GC()
-
-	b := make([]byte, 16)
-	_, err := rand.Read(b)
-
-	uuid := fmt.Sprintf("%x-%x-%x-%x-%x",
-		b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
-
-	select {
-	case <-ctx.Done():
-		return "", fmt.Errorf("impossible to generate UDDI: %v", ctx.Err())
-
-	default:
-		return uuid, err
-	}
-
 }
