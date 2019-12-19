@@ -8,9 +8,9 @@ import (
 	"context"
 	"math/rand"
 	"testing"
+	"testtoken"
 
 	"github.com/axamon/hashstring"
-	"github.com/axamon/testtoken"
 )
 
 func Test_credentials_autenticato(t *testing.T) {
