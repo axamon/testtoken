@@ -3,8 +3,6 @@ env:
     - CC_TEST_REPORTER_ID=6f9a3af242145c8e06b7d286a19cf05d807d1dcf41541698100efd6f8a42848c
 language: go
 
-
-
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
