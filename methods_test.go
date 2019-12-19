@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/axamon/hashstring"
+	"github.com/axamon/testtoken"
 )
 
 func Test_credentials_autenticato(t *testing.T) {
@@ -18,13 +19,13 @@ func Test_credentials_autenticato(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		c    credentials
+		c    testtoken.Credentials
 		args args
 		want bool
 	}{
 		// TODO: Add test cases.
-		{name: "first", c: credentials{User: "pippo", Hashpass: hashstring.Md5Sum("pippo")}, args: args{ctx: context.TODO()}, want: true},
-		{name: "second", c: credentials{User: "pippo", Hashpass: hashstring.Md5Sum("pipp")}, args: args{ctx: context.TODO()}, want: false},
+		{name: "first", c: testtoken.Credentials{User: "pippo", Hashpass: hashstring.Md5Sum("pippo")}, args: args{ctx: context.TODO()}, want: true},
+		{name: "second", c: testtoken.Credentials{User: "pippo", Hashpass: hashstring.Md5Sum("pipp")}, args: args{ctx: context.TODO()}, want: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -42,13 +43,13 @@ func Test_credentials_token(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		c    credentials
+		c    testtoken.Credentials
 		args args
 		want string
 	}{
 		// TODO: Add test cases.
-		{name: "first", c: credentials{User: "pippo", Hashpass: hashstring.Md5Sum("pippo")}, args: args{ctx: context.TODO()}, want: "75ed1842-49e9-bc19-675e-4d1f766213da"},
-		{name: "second", c: credentials{User: "pippo", Hashpass: hashstring.Md5Sum("pipp")}, args: args{ctx: context.TODO()}, want: ""},
+		{name: "first", c: testtoken.Credentials{User: "pippo", Hashpass: hashstring.Md5Sum("pippo")}, args: args{ctx: context.TODO()}, want: "75ed1842-49e9-bc19-675e-4d1f766213da"},
+		{name: "second", c: testtoken.Credentials{User: "pippo", Hashpass: hashstring.Md5Sum("pipp")}, args: args{ctx: context.TODO()}, want: ""},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -30,9 +30,9 @@ func init() {
 	flag.IntVar(&t, "t", 500, "Timeout in millisecons")
 }
 
-// credentials type is needed to mask in main package the
+// Credentials type is needed to mask in main package the
 // type created in the token package.
-type credentials token.Credentials
+type Credentials token.Credentials
 
 type ctxINTERFACE string
 
@@ -58,7 +58,7 @@ func main() {
 	var result = make(chan string, 1)
 
 	// Creates the credential variable to test.
-	var dinamic = credentials{User: user, Hashpass: hashstring.Md5Sum(pass)}
+	var dinamic = Credentials{User: user, Hashpass: hashstring.Md5Sum(pass)}
 
 	// gets a pseudo UDDI token if the credentials are present in any storage.
 	result <- dinamic.token(ctx)

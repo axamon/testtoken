@@ -30,7 +30,7 @@ func getToken(ctx context.Context, a accesso) string {
 }
 
 // autenticato returns true if credentials are found in any storage.
-func (c credentials) autenticato(ctx context.Context) bool {
+func (c Credentials) autenticato(ctx context.Context) bool {
 
 	ctx, cancel := context.WithTimeout(ctx, 15*time.Millisecond)
 	defer cancel()
@@ -98,7 +98,7 @@ func (c credentials) autenticato(ctx context.Context) bool {
 	}
 }
 
-func (c credentials) token(ctx context.Context) string {
+func (c Credentials) token(ctx context.Context) string {
 
 	if c.autenticato(ctx) {
 		token, err := token.GenerateCtx(ctx)
