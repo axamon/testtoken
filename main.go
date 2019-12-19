@@ -28,8 +28,6 @@ func init() {
 	flag.StringVar(&user, "u", "", "Username")
 	flag.StringVar(&pass, "p", "", "Password")
 	flag.IntVar(&t, "t", 500, "Timeout in millisecons")
-
-	flag.Parse()
 }
 
 // credentials type is needed to mask in main package the
@@ -46,6 +44,8 @@ func main() {
 		time.Duration(t)*time.Millisecond)
 	// At the end of function cleans up.
 	defer cancel()
+
+	flag.Parse()
 
 	udditoken, err := uddi.CreateCtx(ctx)
 	if err != nil {
@@ -70,9 +70,12 @@ func main() {
 	case t := <-result:
 		// closes the channel.
 		close(result)
-		// Prints the pseudo token.
-		fmt.Println(t)
-		os.Exit(0)
+		if t != "" {
+			// Prints the pseudo token.
+			fmt.Println(t)
+			os.Exit(0)
+		}
+		os.Exit(1)
 	}
 
 }

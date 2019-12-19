@@ -6,6 +6,7 @@ package main
 
 import (
 	"context"
+	"math/rand"
 	"testing"
 
 	"github.com/axamon/hashstring"
@@ -22,12 +23,37 @@ func Test_credentials_autenticato(t *testing.T) {
 		want bool
 	}{
 		// TODO: Add test cases.
-		{name: "primo", c: credentials{User: "pippo", Hashpass: hashstring.Md5Sum("pippo")}, args: args{ctx: context.TODO()}, want: true},
+		{name: "first", c: credentials{User: "pippo", Hashpass: hashstring.Md5Sum("pippo")}, args: args{ctx: context.TODO()}, want: true},
+		{name: "second", c: credentials{User: "pippo", Hashpass: hashstring.Md5Sum("pipp")}, args: args{ctx: context.TODO()}, want: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.c.autenticato(tt.args.ctx); got != tt.want {
 				t.Errorf("credentials.autenticato() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_credentials_token(t *testing.T) {
+	rand.Seed(99)
+	type args struct {
+		ctx context.Context
+	}
+	tests := []struct {
+		name string
+		c    credentials
+		args args
+		want string
+	}{
+		// TODO: Add test cases.
+		{name: "first", c: credentials{User: "pippo", Hashpass: hashstring.Md5Sum("pippo")}, args: args{ctx: context.TODO()}, want: "75ed1842-49e9-bc19-675e-4d1f766213da"},
+		{name: "second", c: credentials{User: "pippo", Hashpass: hashstring.Md5Sum("pipp")}, args: args{ctx: context.TODO()}, want: ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.c.token(tt.args.ctx); got != tt.want {
+				t.Errorf("credentials.token() = %v, want %v", got, tt.want)
 			}
 		})
 	}

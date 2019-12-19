@@ -24,11 +24,6 @@ type accesso interface {
 	token(context.Context) string
 }
 
-// verifica function verifies that credentials are found.
-// func verifica(a accesso) {
-// 	fmt.Println(a.autenticato())
-// }
-
 // getToken function returns a pseudo token.
 func getToken(ctx context.Context, a accesso) string {
 	return a.token(ctx)

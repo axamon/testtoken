@@ -4,15 +4,18 @@
 
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
 func Test_main(t *testing.T) {
+	user = "pippo"
+	pass = "pippo"
 	tests := []struct {
 		name string
-		user string
-		pass string
 	}{
 		// TODO: Add test cases.
+		{name: "first"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
