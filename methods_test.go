@@ -7,6 +7,7 @@ package main_test
 import (
 	"context"
 	"github.com/axamon/hashstring"
+	"github.com/axamon/token"
 	"math/rand"
 	"testing"
 )
@@ -18,23 +19,23 @@ func TestCredentials_token(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		c    Credentials
+		c    token.Credentials
 		args args
 		want string
 	}{
 		// TODO: Add test cases.
-		{name: "first", c: Credentials{
+		{name: "first", c: token.Credentials{
 			User: "pippo", Hashpass: hashstring.Md5Sum("pippo")},
 			args: args{ctx: context.TODO()},
 			want: "75ed1842-49e9-bc19-675e-4d1f766213da"},
-		{name: "second", c: Credentials{
+		{name: "second", c: token.Credentials{
 			User: "pippo", Hashpass: hashstring.Md5Sum("pipp")},
 			args: args{ctx: context.TODO()},
 			want: ""},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.c.token(tt.args.ctx); got != tt.want {
+			if got := tt.c.Token(tt.args.ctx); got != tt.want {
 				t.Errorf("Credentials.token() = %v, want %v", got, tt.want)
 			}
 		})

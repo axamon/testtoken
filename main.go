@@ -61,7 +61,7 @@ func main() {
 	var dinamic = Credentials{User: user, Hashpass: hashstring.Md5Sum(pass)}
 
 	// gets a pseudo UDDI token if the credentials are present in any storage.
-	result <- dinamic.token(ctx)
+	result <- dinamic.Token(ctx)
 
 	select {
 	// If checks took too long it quits.

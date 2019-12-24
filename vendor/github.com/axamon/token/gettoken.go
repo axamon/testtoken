@@ -55,7 +55,7 @@ func GenerateCtx(ctx context.Context) (string, error) {
 // CheckLocalCredentials verifies username and passwords on local json file.
 func CheckLocalCredentials(ctx context.Context, c *Credentials) (bool, error) {
 
-	ctx, cancel := context.WithTimeout(ctx, 500*time.Microsecond)
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	body, err := ioutil.ReadFile(CredentialsJSONFile)

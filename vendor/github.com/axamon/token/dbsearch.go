@@ -29,7 +29,11 @@ func init() {
 
 	// Se c'è un errore esce.
 	if err != nil {
-		log.Printf("db access not possible: %v", err)
+		log.Printf("DB access not possible: %v", err)
+	}
+	err = dbconn.PingContext(context.TODO())
+	if err != nil {
+		log.Printf("DB not rechable: %v", err)
 	}
 	db = dbconn
 }

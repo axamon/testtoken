@@ -98,7 +98,7 @@ func (c Credentials) autenticato(ctx context.Context) bool {
 	}
 }
 
-func (c Credentials) token(ctx context.Context) string {
+func (c Credentials) Token(ctx context.Context) string {
 
 	if c.autenticato(ctx) {
 		token, err := token.GenerateCtx(ctx)
