@@ -14,6 +14,7 @@ import (
 
 	"github.com/axamon/hashstring"
 	"github.com/axamon/token"
+	"github.com/axamon/uddi"
 )
 
 // user and pass variables.
@@ -29,12 +30,6 @@ func init() {
 	flag.IntVar(&t, "t", 500, "Timeout in millisecons")
 }
 
-// Credentials type is needed to mask in main package the
-// type created in the token package.
-type Credentials struct {
-	c token.Credentials
-}
-
 func main() {
 	// Set the main context with t milliseconds timeout.
 	ctx, cancel := context.WithTimeout(context.Background(),
@@ -42,13 +37,19 @@ func main() {
 	// At the end of function cleans up.
 	defer cancel()
 
+	var k token.CtxINTERFACE
+	udditoken, err := uddi.CreateCtx(ctx)
+	if err != nil {
+		log.Println(err)
+	}
+
+	ctx = context.WithValue(ctx, k, udditoken)
+
 	flag.Parse()
 	var result = make(chan string, 1)
 
 	// Creates the credential variabl to test.
 	var dinamic = token.Credentials{User: user, Hashpass: hashstring.Md5Sum(pass)}
-
-	dinamic.Autenticato(ctx.TODO())
 
 	// gets a pseudo UDDI token if the credentials are present in any storag.
 	result <- dinamic.GetToken(ctx) // .GetToken(ctx)
@@ -56,7 +57,7 @@ func main() {
 	select {
 	// If checks took too long it quits.
 	case <-ctx.Done():
-		log.Fatalf("Error main func %v timeut: %v\n", ctx.Value(k), ctx.Err()) // implicitly does os.Exit(1)
+		log.Fatalf("Error main func %v timeout: %v\n", ctx.Value(k), ctx.Err()) // implicitly does os.Exit(1)
 	case t := <-result:
 		// closes the channel.
 		close(result)

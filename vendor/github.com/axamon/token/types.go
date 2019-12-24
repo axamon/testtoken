@@ -20,3 +20,8 @@ type credentialsDB struct {
 
 // cryptoSource allows to test token generation.
 type cryptoSource struct{}
+
+// CtxINTERFACE allows to inform all go routines.
+type CtxINTERFACE string
+
+var k CtxINTERFACE

@@ -9,25 +9,7 @@ import (
 	"log"
 	"runtime"
 	"sync"
-
-	"github.com/axamon/uddi"
 )
-
-type ctxINTERFACE string
-
-var k ctxINTERFACE
-
-func init() {
-
-	ctx := context.Background()
-
-	udditoken, err := uddi.CreateCtx(ctx)
-	if err != nil {
-		log.Println(err)
-	}
-
-	ctx = context.WithValue(ctx, k, udditoken)
-}
 
 // accesso is an interface to manage credentials.
 type accesso interface {
@@ -40,7 +22,7 @@ type accesso interface {
 }
 
 // Autenticato returns true if credentials are found in any storage.
-func (c Credentials) Autenticato(ctx context.Context) bool {
+func (c *Credentials) Autenticato(ctx context.Context) bool {
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -56,7 +38,7 @@ func (c Credentials) Autenticato(ctx context.Context) bool {
 	go func() {
 		defer runtime.Gosched()
 		defer wg.Done()
-		isAuthenticated, err := CheckCredentialsDBCtx(ctx, &c)
+		isAuthenticated, err := CheckCredentialsDBCtx(ctx, c)
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
@@ -75,7 +57,7 @@ func (c Credentials) Autenticato(ctx context.Context) bool {
 	go func() {
 		defer runtime.Gosched()
 		defer wg.Done()
-		isAuthenticated, err := CheckLocalCredentials(ctx, &c)
+		isAuthenticated, err := CheckLocalCredentials(ctx, c)
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
