@@ -2,43 +2,49 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package main
+package token
 
 import (
 	"context"
 	"log"
 	"runtime"
 	"sync"
-	"time"
 
-	"github.com/axamon/token"
+	"github.com/axamon/uddi"
 )
+
+type ctxINTERFACE string
+
+var k ctxINTERFACE
+
+func init() {
+
+	ctx := context.Background()
+
+	udditoken, err := uddi.CreateCtx(ctx)
+	if err != nil {
+		log.Println(err)
+	}
+
+	ctx = context.WithValue(ctx, k, udditoken)
+}
 
 // accesso is an interface to manage credentials.
 type accesso interface {
 	// autenticato method returns true whether credentials
 	// are found in any storage (json file or sql db).
-	autenticato(context.Context) bool
+	Autenticato(context.Context) bool
 
 	// token method returns a pseudo token if credentials are good.
-	token(context.Context) string
+	GetToken(context.Context) string
 }
 
-// getToken function returns a pseudo token.
-func getToken(ctx context.Context, a accesso) string {
-	return a.token(ctx)
-}
+// Autenticato returns true if credentials are found in any storage.
+func (c Credentials) Autenticato(ctx context.Context) bool {
 
-// autenticato returns true if credentials are found in any storage.
-func (c Credentials) autenticato(ctx context.Context) bool {
-
-	ctx, cancel := context.WithTimeout(ctx, 15*time.Millisecond)
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	defer runtime.GC()
-
-	var cc token.Credentials
-	cc.User = c.User
-	cc.Hashpass = c.Hashpass
 
 	// Istanzia un wait group per gestire i processi paralleli.
 	var wg sync.WaitGroup
@@ -50,7 +56,7 @@ func (c Credentials) autenticato(ctx context.Context) bool {
 	go func() {
 		defer runtime.Gosched()
 		defer wg.Done()
-		isAuthenticated, err := token.CheckCredentialsDBCtx(ctx, &cc)
+		isAuthenticated, err := CheckCredentialsDBCtx(ctx, &c)
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
@@ -69,7 +75,7 @@ func (c Credentials) autenticato(ctx context.Context) bool {
 	go func() {
 		defer runtime.Gosched()
 		defer wg.Done()
-		isAuthenticated, err := token.CheckLocalCredentials(ctx, &cc)
+		isAuthenticated, err := CheckLocalCredentials(ctx, &c)
 		if err != nil {
 			log.Printf("Error: %v", err)
 		}
@@ -98,10 +104,11 @@ func (c Credentials) autenticato(ctx context.Context) bool {
 	}
 }
 
-func (c Credentials) Token(ctx context.Context) string {
+// GetToken ...
+func (c Credentials) GetToken(ctx context.Context) string {
 
-	if c.autenticato(ctx) {
-		token, err := token.GenerateCtx(ctx)
+	if c.Autenticato(ctx) {
+		token, err := GenerateCtx(ctx)
 		if err != nil {
 			log.Println(err)
 		}

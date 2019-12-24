@@ -9,14 +9,11 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
-	"runtime"
 	"time"
 )
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
-	//rand.Seed(int64(99))
-
 }
 
 // CreateCtx generates a UDDI exadedimal string.
@@ -24,7 +21,6 @@ func CreateCtx(ctx context.Context) (string, error) {
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	defer runtime.GC()
 
 	b := make([]byte, 16)
 	_, err := rand.Read(b)
@@ -43,8 +39,6 @@ func CreateCtx(ctx context.Context) (string, error) {
 
 // Create generates a UDDI exadedimal string.
 func Create() string {
-
-	defer runtime.GC()
 
 	b := make([]byte, 16)
 	rand.Read(b)

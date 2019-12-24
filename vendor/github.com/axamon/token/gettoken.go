@@ -16,7 +16,6 @@ import (
 	"log"
 	rand "math/rand"
 	"runtime"
-	"time"
 )
 
 // CredentialsJSONFile is the json file containing credentials.
@@ -32,7 +31,7 @@ func init() {
 // GenerateCtx generates a token.
 func GenerateCtx(ctx context.Context) (string, error) {
 
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Millisecond)
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	defer runtime.GC()
 

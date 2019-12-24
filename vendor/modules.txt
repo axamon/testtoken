@@ -1,8 +1,8 @@
 # github.com/axamon/hashstring v1.1.0
 github.com/axamon/hashstring
-# github.com/axamon/token v1.2.1
+# github.com/axamon/token v1.3.0
 github.com/axamon/token
-# github.com/axamon/uddi v1.1.1
+# github.com/axamon/uddi v1.1.2
 github.com/axamon/uddi
 # github.com/go-sql-driver/mysql v1.4.1
 github.com/go-sql-driver/mysql

@@ -5,12 +5,20 @@
 package main
 
 import (
+	"flag"
+	"os"
 	"testing"
 )
+
+func TestMain(m *testing.M) {
+	flag.Parse()
+	os.Exit(m.Run())
+}
 
 func Test_main(t *testing.T) {
 	user = "pippo"
 	pass = "pippo"
+
 	tests := []struct {
 		name string
 	}{

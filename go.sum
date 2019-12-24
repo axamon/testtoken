@@ -1,9 +1,9 @@
 github.com/axamon/hashstring v1.1.0 h1:JLCZ4Zw1y6SVTrkgeXdu1nacdbWGSB1dV7Wm9UPzlc8=
 github.com/axamon/hashstring v1.1.0/go.mod h1:Yj4iQ9L0x7duSHQC3zYfLKgfo3QapDAKGfAk1qJl56Y=
-github.com/axamon/token v1.2.1 h1:i1wwT4QKRCE8c4LvITyAOaf0EFRQFZ6Wlcu93UuduX4=
-github.com/axamon/token v1.2.1/go.mod h1:dBcAJrhHuXpyzJgGksQYy4CSu/MEO43FndXL/yBleyk=
-github.com/axamon/uddi v1.1.1 h1:yM4fo2G72NNSFaPvHMxA9pmhXRxvy63upb793PreSN0=
-github.com/axamon/uddi v1.1.1/go.mod h1:hrbPqezeZrTm7Sbj4OIhn51R2Z9mIhwlthZyaBz+pPM=
+github.com/axamon/token v1.3.0 h1:o27fZTy5Z2FK0zagQRcxkonSvRLHobdEZQm5k3qysIQ=
+github.com/axamon/token v1.3.0/go.mod h1:U28G7BlDaTnZQBXvuWBR9ZTKmFO2YCSHldQmK2nbrMw=
+github.com/axamon/uddi v1.1.2 h1:53rATwPMOssnxD2gXItYsiqz166quLgVP5pqxd8epW4=
+github.com/axamon/uddi v1.1.2/go.mod h1:hrbPqezeZrTm7Sbj4OIhn51R2Z9mIhwlthZyaBz+pPM=
 github.com/go-sql-driver/mysql v1.4.1 h1:g24URVg0OFbNUTx9qqY1IRZ9D9z3iPyi5zKhQZpNwpA=
 github.com/go-sql-driver/mysql v1.4.1/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
 github.com/golang/protobuf v1.3.1/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
