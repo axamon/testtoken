@@ -31,7 +31,9 @@ func init() {
 
 // Credentials type is needed to mask in main package the
 // type created in the token package.
-// type Credentials token.Credentials
+type Credentials struct {
+	c token.Credentials
+}
 
 func main() {
 	// Set the main context with t milliseconds timeout.
@@ -46,8 +48,10 @@ func main() {
 	// Creates the credential variabl to test.
 	var dinamic = token.Credentials{User: user, Hashpass: hashstring.Md5Sum(pass)}
 
+	dinamic.Autenticato(ctx.TODO())
+
 	// gets a pseudo UDDI token if the credentials are present in any storag.
-	result <- dinamic.GetToken(ctx)
+	result <- dinamic.GetToken(ctx) // .GetToken(ctx)
 
 	select {
 	// If checks took too long it quits.
