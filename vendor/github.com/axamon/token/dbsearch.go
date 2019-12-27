@@ -9,7 +9,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"time"
 
 	// mysql import.
 	_ "github.com/go-sql-driver/mysql"
@@ -46,7 +45,7 @@ const QueryCredentials = "SELECT IF(COUNT(*),'true','false') FROM app.credential
 func CheckCredentialsDBCtx(ctx context.Context, c *Credentials) (bool, error) {
 
 	// Crea il contesto base.
-	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	// Chiude la connesione al DB alla fine.

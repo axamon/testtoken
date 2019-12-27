@@ -15,7 +15,6 @@ import (
 	"io/ioutil"
 	"log"
 	rand "math/rand"
-	"runtime"
 )
 
 // CredentialsJSONFile is the json file containing credentials.
@@ -33,7 +32,6 @@ func GenerateCtx(ctx context.Context) (string, error) {
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	defer runtime.GC()
 
 	select {
 	case <-ctx.Done():
