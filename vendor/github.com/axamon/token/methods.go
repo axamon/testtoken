@@ -30,7 +30,7 @@ func (c *Credentials) Autenticato(ctx context.Context) bool {
 	// Istanzia un wait group per gestire i processi paralleli.
 	var wg sync.WaitGroup
 
-	var globallyAuthenticated bool = false
+	var globallyAuthenticated = make(chan bool, 1)
 
 	// Aggiunge un processo parallelo.
 	wg.Add(1)
@@ -46,7 +46,7 @@ func (c *Credentials) Autenticato(ctx context.Context) bool {
 			ctx.Value(k))
 
 		if isAuthenticated {
-			globallyAuthenticated = true
+			globallyAuthenticated <- true
 		}
 		return
 	}()
@@ -66,25 +66,28 @@ func (c *Credentials) Autenticato(ctx context.Context) bool {
 			ctx.Value(k))
 
 		if isAuthenticated {
-			globallyAuthenticated = true
+			globallyAuthenticated <- true
 		}
 		return
 	}()
 
-	for globallyAuthenticated == false {
-		select {
-		case <-ctx.Done():
-			log.Printf("Error in autenticato %v function: %v\n",
-				ctx.Value(k),
-				ctx.Err())
-			return false
-		default:
-			// Aspetta che tutti i processi paralleli terminino.
-			wg.Wait()
-			return globallyAuthenticated
-		}
+	go func() {
+		// Aspetta che tutti i processi paralleli terminino.
+		wg.Wait()
+		globallyAuthenticated <- false
+		return
+	}()
+
+	select {
+	case <-ctx.Done():
+		log.Printf("Error in autenticato %v function: %v\n",
+			ctx.Value(k),
+			ctx.Err())
+		return false
+	case result := <-globallyAuthenticated:
+		return result
 	}
-	return globallyAuthenticated
+
 }
 
 // GetToken ...

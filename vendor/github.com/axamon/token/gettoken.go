@@ -15,6 +15,8 @@ import (
 	"io/ioutil"
 	"log"
 	rand "math/rand"
+
+	"github.com/axamon/bloomfilter"
 )
 
 // CredentialsJSONFile is the json file containing credentials.
@@ -22,9 +24,25 @@ var CredentialsJSONFile = "credentialsdb.json"
 
 var src cryptoSource
 
+var f *bloomfilter.BloomFilter
+
 func init() {
+	var err error
 	rnd := rand.New(src)
 	rnd.Seed(rnd.Int63())
+
+	f = bloomfilter.New()
+	body, err := ioutil.ReadFile(CredentialsJSONFile)
+	var db = new(credentialsDB)
+	err = json.Unmarshal(body, &db)
+	if err != nil {
+		log.Printf(
+			"Error in unmarshalling %s: %v", CredentialsJSONFile, err)
+	}
+	for _, r := range db.UserpassDB {
+		f.Add(r.UsernameDB)
+	}
+
 }
 
 // GenerateCtx generates a token.
@@ -54,6 +72,12 @@ func CheckLocalCredentials(ctx context.Context, c *Credentials) (bool, error) {
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
+
+	// Verify on bloomfilter created in init the presence of username.
+	// If not present exits.
+	if !f.Exist(c.User) {
+		return false, fmt.Errorf("User %s not found in bloomfilter", c.User)
+	}
 
 	body, err := ioutil.ReadFile(CredentialsJSONFile)
 

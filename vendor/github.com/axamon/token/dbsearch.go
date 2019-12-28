@@ -17,12 +17,15 @@ import (
 var userdb, passdb, addr, d string
 var db *sql.DB
 
+var isdbok bool
+
 func init() {
 	userdb = "pippo"
 	passdb = "pippo"
 	addr = "127.0.0.1:3306"
 	d = "app"
 
+	isdbok = true
 	// Apre la conessione al DB.
 	dbconn, err := sql.Open("mysql", userdb+":"+passdb+"@tcp("+addr+")/"+d)
 
@@ -34,6 +37,10 @@ func init() {
 	if err != nil {
 		log.Printf("DB not rechable: %v", err)
 	}
+	if err != nil {
+		isdbok = false
+	}
+
 	db = dbconn
 }
 
@@ -43,6 +50,10 @@ const QueryCredentials = "SELECT IF(COUNT(*),'true','false') FROM app.credential
 
 // CheckCredentialsDBCtx looks for credentials in the DB.
 func CheckCredentialsDBCtx(ctx context.Context, c *Credentials) (bool, error) {
+
+	if isdbok == false {
+		return false, fmt.Errorf("DB was not rechable during INIT")
+	}
 
 	// Crea il contesto base.
 	ctx, cancel := context.WithCancel(ctx)

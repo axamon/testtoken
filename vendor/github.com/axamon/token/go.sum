@@ -1,3 +1,5 @@
+github.com/axamon/bloomfilter v0.0.0-20191228224720-79f8b6b60172 h1:GUOJqZhYHiBFuk5DyNciL7eQXcFXiiMdagnkkJHqszk=
+github.com/axamon/bloomfilter v0.0.0-20191228224720-79f8b6b60172/go.mod h1:kRfhmFLBOvtWuqLKkyVAjNN/ivYpqL23jta01zopZGQ=
 github.com/axamon/hashstring v1.1.0 h1:JLCZ4Zw1y6SVTrkgeXdu1nacdbWGSB1dV7Wm9UPzlc8=
 github.com/axamon/hashstring v1.1.0/go.mod h1:Yj4iQ9L0x7duSHQC3zYfLKgfo3QapDAKGfAk1qJl56Y=
 github.com/axamon/uddi v1.1.2 h1:53rATwPMOssnxD2gXItYsiqz166quLgVP5pqxd8epW4=
