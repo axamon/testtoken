@@ -75,7 +75,7 @@ func CheckLocalCredentials(ctx context.Context, c *Credentials) (bool, error) {
 
 	// Verify on bloomfilter created in init the presence of username.
 	// If not present exits.
-	if !f.Exist(c.User) {
+	if !f.Exists(c.User) {
 		return false, fmt.Errorf("User %s not found in bloomfilter", c.User)
 	}
 

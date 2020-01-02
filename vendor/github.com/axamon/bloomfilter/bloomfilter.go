@@ -2,98 +2,95 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package bloomfilter is based on only one hashing funcion
-// and with only 64 bits of memory.
-// That is enough to speed up searches for up to 10 elements max.
+// Package bloomfilter is a thread-safe probabilisic filter.
+// With default configuration it can store up to one million elements.
+// All negative results to queries are meant to be 100% accurate, while false
+// positives should happen less than once every three million queries.
 package bloomfilter
 
 import (
-	"fmt"
-	"math/bits"
 	"sync"
 
 	"github.com/axamon/hashstring"
 )
 
-// BloomFilter ...
-type BloomFilter struct {
-	Slice uint
-	sync.Mutex
-}
+/*
+Bloom filter probability is:
+	p = pow(1 - exp(-k / (m / n)), k)
+*/
+
+// Elements is the MAX number of elements to store in the filter.
+var Elements = 1000000 // n
+
+var filterLength = 100 * Elements // m
+
+// NumOfHashes is the number of hash functions to use.
+var NumOfHashes = 5 // k
 
 // New creates a new *BloomFilter istance.
 func New() *BloomFilter {
-
-	return new(BloomFilter)
+	f := &BloomFilter{
+		M: make(map[int]struct{}, filterLength),
+	}
+	return f
 }
 
-// Bittoflip finds the bit in a uint to flip as hashing.
-func Bittoflip(s string) int {
-	h := hashstring.Sha256Sum(s)
+// Nhashings creates in parallel the list of nums to insert
+// in the filter based on n trivial different hashing functions.
+func Nhashings(s string, n int) []int {
 
-	ss := fmt.Sprintf("%x\n", h)
+	var b Bits
 
-	var k int
-	for _, v := range ss {
-		k = k + int(v)
+	var wgN sync.WaitGroup
+
+	for i := 1; i <= n; i++ {
+		wgN.Add(1)
+		go func(i int) {
+			defer wgN.Done()
+			h := hashstring.Sha512Sum(s + string(i))
+			// ss := fmt.Sprintf("%x\n", h)
+
+			var k int
+			for index, v := range h {
+				k += int(v) * index * i
+			}
+			// make sure bit to flip is in the 64 bit range.
+			pos := (k % filterLength)
+			b.Lock()
+			b.list = append(b.list, pos)
+			b.Unlock()
+		}(i)
 	}
+	wgN.Wait()
 
-	// make sure bit to flip is in the 64 bit range.
-	pos := (k % 64)
-
-	return pos
+	return b.list
 }
 
 // Add adds an element to a *BloomFilter.
 func (f *BloomFilter) Add(s string) {
 
-	position := Bittoflip(s)
+	positions := Nhashings(s, NumOfHashes)
 
-	// performes OR on the position bit.
-	f.Lock()
-	f.Slice |= (1 << uint(position))
-	f.Unlock()
+	for _, bit := range positions {
+		f.Lock()
+		f.M[bit] = struct{}{}
+		f.Unlock()
+	}
 
 	return
 }
 
-// ShowBits shows the single bits in the uint.
-func (f *BloomFilter) ShowBits() {
+// Exists returns true false with 100% certainty if element is NOT in the filter,
+// returns true with LESS than 100% certainty if element seems to be present.
+func (f *BloomFilter) Exists(s string) bool {
+	f.Lock()
+	defer f.Unlock()
+	positions := Nhashings(s, NumOfHashes)
 
-	for i := 0; i < bits.UintSize; i++ {
-		// If there is a bit set at this position, write a 1.
-		// ... Otherwise write a 0.
-		if f.Slice&(1<<uint(i)) != 0 {
-			fmt.Print("1")
-		} else {
-			fmt.Print("0")
+	for _, bit := range positions {
+		if _, ok := f.M[bit]; !ok {
+			return false
 		}
 	}
-	fmt.Println()
-}
-
-// ShowPosBit shows the pos bit in the uint to verify.
-func (f *BloomFilter) ShowPosBit(pos int) {
-
-	// If there is a bit set at this position, write a 1.
-	// ... Otherwise write a 0.
-	if f.Slice&(1<<uint(pos)) != 0 {
-		fmt.Print("1")
-	} else {
-		fmt.Print("0")
-	}
-	fmt.Println()
-}
-
-// Exist ...
-func (f *BloomFilter) Exist(s string) bool {
-
-	pos := Bittoflip(s)
-
-	//f.ShowBits()
-	if f.Slice&(1<<uint(pos)) != 0 {
-		return true
-	}
-
-	return false
+	return true
 }

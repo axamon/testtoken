@@ -1,8 +1,8 @@
-# github.com/axamon/bloomfilter v0.0.0-20191228224720-79f8b6b60172
+# github.com/axamon/bloomfilter v1.4.0
 github.com/axamon/bloomfilter
 # github.com/axamon/hashstring v1.1.0
 github.com/axamon/hashstring
-# github.com/axamon/token v1.4.0
+# github.com/axamon/token v1.4.1
 github.com/axamon/token
 # github.com/axamon/uddi v1.1.2
 github.com/axamon/uddi
